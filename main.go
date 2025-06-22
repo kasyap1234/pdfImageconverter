@@ -20,7 +20,6 @@ const (
 	numWorkers = 7
 )
 
-// convertPDFtoJPG converts all pages of a PDF to separate JPG images.
 func convertPDFtoJPG(pdfPath, outputDir string) error {
 	doc, err := fitz.New(pdfPath)
 	if err != nil {
