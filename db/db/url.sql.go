@@ -7,45 +7,68 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createShortURL = `-- name: CreateShortURL :one
-INSERT INTO url(original_url,short_url) VALUES($1,$2) RETURNING id, original_url, short_url, created_at, updated_at, visits
+const createUser = `-- name: CreateUser :one
+INSERT INTO users(id,email,password,created_at) VALUES ($1,$2,$3,$4) RETURNING id, email, password, created_at
 `
 
-type CreateShortURLParams struct {
-	OriginalUrl string
-	ShortUrl    string
+type CreateUserParams struct {
+	ID        pgtype.UUID
+	Email     string
+	Password  string
+	CreatedAt pgtype.Timestamp
 }
 
-func (q *Queries) CreateShortURL(ctx context.Context, arg CreateShortURLParams) (Url, error) {
-	row := q.db.QueryRow(ctx, createShortURL, arg.OriginalUrl, arg.ShortUrl)
-	var i Url
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.ID,
+		arg.Email,
+		arg.Password,
+		arg.CreatedAt,
+	)
+	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.OriginalUrl,
-		&i.ShortUrl,
+		&i.Email,
+		&i.Password,
 		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Visits,
 	)
 	return i, err
 }
 
-const getURLByShortURL = `-- name: GetURLByShortURL :one
-SELECT id, original_url, short_url, created_at, updated_at, visits FROM url WHERE short_url = $1
+const getURL = `-- name: GetURL :one
+SELECT id, user_id, original_url, short_code, created_at FROM urls WHERE  id=$1 LIMIT 1
 `
 
-func (q *Queries) GetURLByShortURL(ctx context.Context, shortUrl string) (Url, error) {
-	row := q.db.QueryRow(ctx, getURLByShortURL, shortUrl)
+func (q *Queries) GetURL(ctx context.Context, id pgtype.UUID) (Url, error) {
+	row := q.db.QueryRow(ctx, getURL, id)
 	var i Url
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.OriginalUrl,
-		&i.ShortUrl,
+		&i.ShortCode,
 		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Visits,
+	)
+	return i, err
+}
+
+const getURLByUserID = `-- name: GetURLByUserID :one
+SELECT id, user_id, original_url, short_code, created_at FROM urls WHERE user_id=$1 LIMIT 10
+`
+
+func (q *Queries) GetURLByUserID(ctx context.Context, userID pgtype.UUID) (Url, error) {
+	row := q.db.QueryRow(ctx, getURLByUserID, userID)
+	var i Url
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OriginalUrl,
+		&i.ShortCode,
+		&i.CreatedAt,
 	)
 	return i, err
 }

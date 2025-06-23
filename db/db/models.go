@@ -8,11 +8,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Stat struct {
+	ID        pgtype.UUID
+	UrlID     pgtype.UUID
+	IpAddress pgtype.Text
+	UserAgent pgtype.Text
+	ClickedAt pgtype.Timestamp
+}
+
 type Url struct {
-	ID          int32
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
 	OriginalUrl string
-	ShortUrl    string
+	ShortCode   string
 	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
-	Visits      int32
+}
+
+type User struct {
+	ID        pgtype.UUID
+	Email     string
+	Password  string
+	CreatedAt pgtype.Timestamp
 }
