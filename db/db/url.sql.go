@@ -11,6 +11,35 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createURL = `-- name: CreateURL :one
+INSERT INTO urls(id,user_id,original_url,short_code) VALUES($1,$2,$3,$4) RETURNING id, user_id, original_url, short_code, created_at
+`
+
+type CreateURLParams struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	OriginalUrl string
+	ShortCode   string
+}
+
+func (q *Queries) CreateURL(ctx context.Context, arg CreateURLParams) (Url, error) {
+	row := q.db.QueryRow(ctx, createURL,
+		arg.ID,
+		arg.UserID,
+		arg.OriginalUrl,
+		arg.ShortCode,
+	)
+	var i Url
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OriginalUrl,
+		&i.ShortCode,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users(id,email,password,created_at) VALUES ($1,$2,$3,$4) RETURNING id, email, password, created_at
 `

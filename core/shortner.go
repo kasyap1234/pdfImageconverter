@@ -12,7 +12,7 @@ func GenerateShortCode(length int) (string, error) {
 		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
 		if err != nil {
 			return "", err
-			panic("random number generation failed")
+
 		}
 		r[i] = charset[n.Int64()]
 	}
