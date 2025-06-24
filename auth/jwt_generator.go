@@ -13,6 +13,6 @@ func GenerateJWT(userID string) (string, error) {
 		"user_id": userID,
 		"exp":     time.Now().Add(time.Hour).Unix(),
 	}
-	t :=jwt.NewWithClaims(jwt.SigningMethodRS512,claims)
+	t := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
 	return t.SignedString(jwtSecret)
 }
