@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"practice/auth"
+	"practice/core"
 	"practice/db/db"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -42,7 +43,7 @@ func main() {
 	e.POST("/login", auth.Login(q))
 	protected := e.Group("/user")
 	protected.Use(auth.JWTMiddleware)
-	protected.POST("/shorten", ShortenURL(q))
+	protected.POST("/shorten", core.ShortenURL(q))
 	e.Start(":8080")
 
 }
